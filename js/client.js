@@ -31,28 +31,31 @@ socket.on('user-joined',myname=>{
 }
 );
 
-//if server sends a message receive it
-socket.on('receive',data=>{
-    append(`${data.myname}:${data.message}`, "left");
-}
-);
+
 
 //if a user leaves the chat ,append the info to container
 socket.on('left',myname=>{
     append(`${myname} left the chat`, "left");
 })
-
+const secret="hi";
 //if the form gets submitted,send server the message
 form.addEventListener('submit',(e)=>{
     e.preventDefault();
     const message=messageInput.value;
     append(`You: ${message}`, "right");
-    //var ciphertext = CryptoJS.AES.encrypt(message, 'secret key 123').toString();
-    //socket.emit('send',ciphertext);//emit the event send and pass the message
-    socket.emit('send',message);//emit the event send and pass the message
+    
+    
+    let encrypted=CryptoJS.AES.encrypt(message,secret).toString();
+    console.log(encrypted);
+    socket.emit('send',encrypted);//emit the event send and pass the message
     messageInput.value  ="";
 })
 
-
+//if server sends a message receive it
+socket.on('receive',data=>{
+    let decrypted=CryptoJS.AES.decrypt(data.message,secret).toString(CryptoJS.enc.Utf8);
+    append(`${data.myname}:${decrypted}`, "left");
+}
+);
 
 
